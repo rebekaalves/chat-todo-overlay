@@ -42,6 +42,15 @@ function render() {
     total ? `${completed} of ${total} completed` : "";
 }
 
+function clearAll() {
+  Object.keys(tasks).forEach(user => {
+    delete tasks[user];
+  });
+  save();
+  render();
+}
+
+
 /* API via URL */
 const params = new URLSearchParams(window.location.search);
 
