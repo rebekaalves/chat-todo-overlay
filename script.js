@@ -1,22 +1,49 @@
-const tasks = JSON.parse(localStorage.getItem("tasks")) || {};
+const channelName = "SEU_CANAL"; // sem @
 
-function save() {
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-}
+const tasks = {};
+
+const client = new tmi.Client({
+  connection: { secure: true, reconnect: true },
+  channels: [channelName]
+});
+
+client.connect();
+
+client.on("message", (channel, tags, message, self) => {
+  if (self) return;
+
+  const user = tags.username;
+  const msg = message.trim();
+
+  if (msg.startsWith("!todo ")) {
+    addTask(user, msg.replace("!todo ", ""));
+  }
+
+  if (msg.startsWith("!done ")) {
+    doneTask(user, parseInt(msg.replace("!done ", "")));
+  }
+
+  if (msg === "!clear" && tags.badges?.broadcaster) {
+    clearAll();
+  }
+});
 
 function addTask(user, text) {
   if (!tasks[user]) tasks[user] = [];
   tasks[user].push({ text, done: false });
-  save();
   render();
 }
 
 function doneTask(user, index) {
   if (tasks[user] && tasks[user][index]) {
     tasks[user][index].done = true;
-    save();
     render();
   }
+}
+
+function clearAll() {
+  Object.keys(tasks).forEach(u => delete tasks[u]);
+  render();
 }
 
 function render() {
@@ -27,7 +54,7 @@ function render() {
   let completed = 0;
 
   Object.keys(tasks).forEach(user => {
-    tasks[user].forEach((task, i) => {
+    tasks[user].forEach(task => {
       total++;
       if (task.done) completed++;
 
@@ -41,30 +68,3 @@ function render() {
   document.getElementById("progress").textContent =
     total ? `${completed} of ${total} completed` : "";
 }
-
-function clearAll() {
-  Object.keys(tasks).forEach(user => {
-    delete tasks[user];
-  });
-  save();
-  render();
-}
-
-
-/* API via URL */
-const params = new URLSearchParams(window.location.search);
-
-if (params.get("action") === "add") {
-  addTask(params.get("user"), params.get("task"));
-}
-
-if (params.get("action") === "done") {
-  doneTask(params.get("user"), parseInt(params.get("id")));
-}
-
-if (params.get("action") === "clear") {
-  clearAll();
-}
-
-render();
-
