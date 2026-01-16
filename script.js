@@ -62,5 +62,9 @@ if (params.get("action") === "done") {
   doneTask(params.get("user"), parseInt(params.get("id")));
 }
 
+if (params.get("action") === "clear") {
+  clearAll();
+}
+
 render();
 
