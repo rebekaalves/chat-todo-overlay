@@ -1,4 +1,4 @@
-const channelName = "SEU_CANAL"; // sem @
+const channelName = "pingzinha"; // sem @
 
 const tasks = {};
 
