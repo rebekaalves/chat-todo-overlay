@@ -1,0 +1,42 @@
+const tasks = {};
+
+function addTask(user, text) {
+  if (!tasks[user]) tasks[user] = [];
+  tasks[user].push({ text, done: false });
+  render();
+}
+
+function doneTask(user, index) {
+  if (tasks[user] && tasks[user][index]) {
+    tasks[user][index].done = true;
+    render();
+  }
+}
+
+function render() {
+  const ul = document.getElementById("tasks");
+  ul.innerHTML = "";
+
+  let total = 0;
+  let completed = 0;
+
+  Object.keys(tasks).forEach(user => {
+    tasks[user].forEach(task => {
+      total++;
+      if (task.done) completed++;
+
+      const li = document.createElement("li");
+      li.textContent = `${user}: ${task.text}`;
+      if (task.done) li.classList.add("done");
+      ul.appendChild(li);
+    });
+  });
+
+  document.getElementById("progress").textContent =
+    `${completed} of ${total} completed`;
+}
+
+/* TESTE MANUAL */
+addTask("viewer1", "Study kanji");
+addTask("viewer2", "Pomodoro 25min");
+doneTask("viewer1", 0);
